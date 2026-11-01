@@ -1,16 +1,26 @@
 #include "fractal.h"
 
-/*
- * FUNCOES A SEREM IMPLEMENTADAS PELO ALUNO
- */
-
 void cantor_rec(
     unsigned char img[][MAX_DIM],
     int x, int y,
     int comprimento,
     int profundidade) {
 
-    /* TODO: implemente esta funcao. */
+    if (profundidade <= 0) {
+        return;
+    }
+
+    linha_horizontal(img, x, y, comprimento, 1);
+
+    int novo_comprimento = comprimento / 3;
+
+    cantor_rec(
+        img, x, y + DIST_Y_CANTOR,
+        novo_comprimento, profundidade - 1);
+
+    cantor_rec(
+        img, x + 2 * novo_comprimento, y + DIST_Y_CANTOR,
+        novo_comprimento, profundidade - 1);
 }
 
 void arvore_h_rec(
@@ -20,7 +30,38 @@ void arvore_h_rec(
     int profundidade,
     int orientacao) {
 
-    /* TODO: implemente esta funcao. */
+    if (profundidade <= 0) {
+        return;
+    }
+
+    if (orientacao == H_HORIZONTAL) {
+        linha_horizontal(
+            img, x - tamanho, y,
+            2 * tamanho + 1, 1);
+
+        arvore_h_rec(
+            img, x - tamanho, y,
+            tamanho, profundidade - 1, H_VERTICAL);
+
+        arvore_h_rec(
+            img, x + tamanho, y,
+            tamanho, profundidade - 1, H_VERTICAL);
+
+    } else {
+        linha_vertical(
+            img, x, y - tamanho,
+            2 * tamanho + 1, 1);
+
+        int novo_tamanho = tamanho / 2;
+
+        arvore_h_rec(
+            img, x, y - tamanho,
+            novo_tamanho, profundidade - 1, H_HORIZONTAL);
+
+        arvore_h_rec(
+            img, x, y + tamanho,
+            novo_tamanho, profundidade - 1, H_HORIZONTAL);
+    }
 }
 
 void tapete_rec(
@@ -30,7 +71,25 @@ void tapete_rec(
     int lado,
     int profundidade) {
 
-    /* TODO: implemente esta funcao. */
+    if (profundidade == 0) {
+        pinta_retangulo(img, x, y, lado, lado, 1);
+        return;
+    }
+
+    int novo_lado = lado / 3;
+
+    for (int i = 0; i < 3; i++) {
+        for (int j = 0; j < 3; j++) {
+            if (i != 1 || j != 1) {
+                tapete_rec(
+                    img,
+                    x + j * novo_lado,
+                    y + i * novo_lado,
+                    novo_lado,
+                    profundidade - 1);
+            }
+        }
+    }
 }
 
 /*
@@ -74,7 +133,7 @@ int arvore_h(
     for (int i = 0; i < (profundidade - 1) / 2; i++)
         r *= 2;
 
-    meio = 2 * r - HTREE_MIN_DIST + 2; /* +2 para borda de 2 pixels */
+    meio = 2 * r - HTREE_MIN_DIST + 2;
     altura = largura = 2 * meio + 1;
 
     arvore_h_rec(
